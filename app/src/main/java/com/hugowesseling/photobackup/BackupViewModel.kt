@@ -25,10 +25,12 @@ class BackupViewModel : ViewModel() {
     var isRefreshing by mutableStateOf(false)
     var isBackingUp by mutableStateOf(false)
     var statusMessage by mutableStateOf("")
+    
+    var filesToUpload by mutableStateOf(listOf<FileMetadata>())
+        private set
 
     private var localFiles = listOf<FileMetadata>()
     private var serverFiles = listOf<FileMetadata>()
-    private var filesToUpload = listOf<FileMetadata>()
 
     fun refresh(config: Configuration) {
         viewModelScope.launch {

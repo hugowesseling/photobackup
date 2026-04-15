@@ -14,6 +14,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -140,6 +143,7 @@ fun MainBackupScreen(
                         totalSize = backupViewModel.localTotalSize,
                         secondarySize = backupViewModel.localToBackupSize,
                         secondaryLabel = "To backup",
+                        files = backupViewModel.filesToUpload,
                         modifier = Modifier.weight(1f)
                     )
 
@@ -206,14 +210,47 @@ fun StatusSection(
     totalSize: Long,
     secondarySize: Long,
     secondaryLabel: String,
+    files: List<FileMetadata> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         Text(text = title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(text = folder, style = MaterialTheme.typography.bodySmall)
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = folder, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Total: ${formatFileSize(totalSize)}", style = MaterialTheme.typography.bodyMedium)
         Text(text = "$secondaryLabel: ${formatFileSize(secondarySize)}", style = MaterialTheme.typography.bodyMedium)
+        
+        if (files.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Files to backup:", style = MaterialTheme.typography.titleSmall)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(files) { file ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = file.path,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = formatFileSize(file.size),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
