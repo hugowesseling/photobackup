@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,6 +33,12 @@ class ConfigurationListActivity : ComponentActivity() {
                     onAddClick = {
                         startActivity(Intent(this, AddEditConfigurationActivity::class.java))
                     },
+                    onEditClick = { config ->
+                        val intent = Intent(this, AddEditConfigurationActivity::class.java).apply {
+                            putExtra("config_id", config.id)
+                        }
+                        startActivity(intent)
+                    },
                     onConfigClick = { config ->
                         val intent = Intent(this, MainActivity::class.java).apply {
                             putExtra("config_id", config.id)
@@ -48,6 +55,7 @@ class ConfigurationListActivity : ComponentActivity() {
 @Composable
 fun ConfigurationListScreen(
     onAddClick: () -> Unit,
+    onEditClick: (Configuration) -> Unit,
     onConfigClick: (Configuration) -> Unit,
     viewModel: ConfigurationViewModel = viewModel()
 ) {
@@ -72,6 +80,7 @@ fun ConfigurationListScreen(
                 ConfigurationItem(
                     config = config,
                     onClick = { onConfigClick(config) },
+                    onEdit = { onEditClick(config) },
                     onDelete = { viewModel.delete(config) }
                 )
             }
@@ -83,6 +92,7 @@ fun ConfigurationListScreen(
 fun ConfigurationItem(
     config: Configuration,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -99,12 +109,17 @@ fun ConfigurationItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = config.name, style = MaterialTheme.typography.titleMedium)
                 Text(text = config.server, style = MaterialTheme.typography.bodyMedium)
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete")
+            Row {
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
             }
         }
     }
