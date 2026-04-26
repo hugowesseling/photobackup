@@ -86,9 +86,11 @@ class BackupViewModel : ViewModel() {
     private suspend fun getLocalFiles(rootPath: String): List<FileMetadata> = withContext(Dispatchers.IO) {
         val root = File(rootPath)
         if (!root.exists() || !root.isDirectory) return@withContext emptyList<FileMetadata>()
-        
+
         root.walkTopDown()
-            .filter { it.isFile }
+            .filter { file ->
+                file.isFile && !file.name.startsWith(".trashed")
+            }
             .map { file ->
                 FileMetadata(
                     size = file.length(),
